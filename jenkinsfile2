@@ -1,0 +1,34 @@
+ipeline {
+    environment {
+        registry = "shreyashkumarp/flaskapp"
+        registryCredential = "dockerid"
+        dockerImage = ''
+    }
+    agent any
+    stages {
+        stage('Cloning the Code') {
+            steps {
+                echo 'Cloning the Code from Git'
+                git branch:'main', url: 'https://github.com/shreyashkumarp98/Pythonflaskapp.git'
+            }
+        }
+        stage('Terraform setup') {
+            steps {
+                echo 'Deploy the App using Kubectl'
+                //sh "sed -i 's/BUILDNUMBER/$BUILD_NUMBER/g' python-flask-deployment.yml"
+                sh "sed -i 's/DEPLOYMENTENVIRONMENT/development/g' python-flask-deployment.yml"
+                sh "sed -i 's/TAG/$BUILD_NUMBER/g' python-flask-deployment.yml"
+                sh "kubectl apply -f python-flask-deployment.yml"
+            }
+        }
+        stage('Ansible Configuration') {
+            steps {
+                echo 'Deploy the App using Kubectl'
+                sh "sed -i 's/development/production/g' python-flask-deployment.yml"
+                
+                sh "kubectl apply -f python-flask-deployment.yml"
+            }
+        }
+    }
+    
+}
